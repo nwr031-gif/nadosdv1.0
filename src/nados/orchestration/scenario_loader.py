@@ -4,11 +4,9 @@ Scenario loading and validation.
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
 
 from nados.domain import SimulationScenario
 from nados.observability import get_logger
-
 
 logger = get_logger("orchestration.scenario_loader")
 
@@ -16,68 +14,74 @@ logger = get_logger("orchestration.scenario_loader")
 def load_scenario(file_path: str) -> SimulationScenario:
     """Load and validate a scenario from JSON file."""
     path = Path(file_path)
-    
+
     if not path.exists():
         raise FileNotFoundError(f"Scenario file not found: {file_path}")
-    
-    with open(path, 'r', encoding='utf-8') as f:
+
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
-    
+
     # Validate and create scenario
     scenario = SimulationScenario.model_validate(data)
-    
+
     # Additional validation
     errors = scenario.validate_references()
     if errors:
         raise ValueError(f"Scenario validation failed: {'; '.join(errors)}")
-    
+
     logger.info(f"Loaded scenario: {scenario.name} ({scenario.scenario_id})")
     return scenario
 
 
-def validate_scenario_file(file_path: str) -> List[str]:
+def validate_scenario_file(file_path: str) -> list[str]:
     """Validate a scenario file and return list of errors."""
     errors = []
-    
+
     try:
         path = Path(file_path)
         if not path.exists():
             errors.append(f"File not found: {file_path}")
             return errors
-        
-        with open(path, 'r', encoding='utf-8') as f:
+
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
-        
+
         # Check required fields
         required_fields = [
-            "scenario_id", "schema_version", "name",
-            "duration_seconds", "timestep_seconds", "random_seed",
-            "coordinate_system", "simulated_sensors", "virtual_objects"
+            "scenario_id",
+            "schema_version",
+            "name",
+            "duration_seconds",
+            "timestep_seconds",
+            "random_seed",
+            "coordinate_system",
+            "simulated_sensors",
+            "virtual_objects",
         ]
-        
+
         for field in required_fields:
             if field not in data:
                 errors.append(f"Missing required field: {field}")
-        
+
         # Validate schema version
         if data.get("schema_version") not in ["v1"]:
             errors.append(f"Unsupported schema version: {data.get('schema_version')}")
-        
+
         # Validate numeric values
         if data.get("duration_seconds", 0) <= 0:
             errors.append("duration_seconds must be positive")
-        
+
         if data.get("timestep_seconds", 0) <= 0:
             errors.append("timestep_seconds must be positive")
-        
+
         if data.get("random_seed", -1) < 0:
             errors.append("random_seed must be non-negative")
-        
+
         # Validate objects
         for i, obj in enumerate(data.get("virtual_objects", [])):
             if not obj.get("object_id"):
                 errors.append(f"Object {i}: missing object_id")
-        
+
         # Validate sensors
         sensor_ids = set()
         for i, sensor in enumerate(data.get("simulated_sensors", [])):
@@ -87,7 +91,7 @@ def validate_scenario_file(file_path: str) -> List[str]:
             elif sensor_id in sensor_ids:
                 errors.append(f"Duplicate sensor_id: {sensor_id}")
             sensor_ids.add(sensor_id)
-        
+
         object_ids = set()
         for i, obj in enumerate(data.get("virtual_objects", [])):
             obj_id = obj.get("object_id")
@@ -96,18 +100,18 @@ def validate_scenario_file(file_path: str) -> List[str]:
             elif obj_id in object_ids:
                 errors.append(f"Duplicate object_id: {obj_id}")
             object_ids.add(obj_id)
-        
+
     except json.JSONDecodeError as e:
         errors.append(f"Invalid JSON: {e}")
     except Exception as e:
         errors.append(f"Validation error: {e}")
-    
+
     return errors
 
 
 def create_demo_scenario(scenario_type: str = "basic") -> SimulationScenario:
     """Create a demo scenario programmatically."""
-    
+
     if scenario_type == "basic":
         return _create_basic_tracking_scenario()
     elif scenario_type == "noisy":
@@ -121,12 +125,16 @@ def create_demo_scenario(scenario_type: str = "basic") -> SimulationScenario:
 def _create_basic_tracking_scenario() -> SimulationScenario:
     """Create basic tracking demo scenario."""
     from nados.domain import (
-        VirtualObject, SensorDefinition, SensorType,
-        EnvironmentalConditions, VisualizationSettings,
-        ObjectType, CoordinateSystem
+        CoordinateSystem,
+        EnvironmentalConditions,
+        ObjectType,
+        SensorDefinition,
+        SensorType,
+        VirtualObject,
+        VisualizationSettings,
     )
-    from nados.domain.base import Vector3D, Matrix3x3
-    
+    from nados.domain.base import Matrix3x3, Vector3D
+
     # Single object moving at constant velocity
     obj = VirtualObject(
         object_id="target_001",
@@ -138,7 +146,7 @@ def _create_basic_tracking_scenario() -> SimulationScenario:
         simulation_enabled=True,
         metadata={"motion_model": "constant_velocity"},
     )
-    
+
     # Single radar sensor
     sensor = SensorDefinition(
         sensor_id="radar_001",
@@ -148,7 +156,7 @@ def _create_basic_tracking_scenario() -> SimulationScenario:
         measurement_noise=Matrix3x3.diagonal([100, 100, 50]),  # 100m horizontal, 50m vertical
         metadata={"dropout_probability": 0.0},
     )
-    
+
     return SimulationScenario(
         scenario_id="basic_tracking",
         schema_version="v1",
@@ -171,12 +179,16 @@ def _create_basic_tracking_scenario() -> SimulationScenario:
 def _create_noisy_sensor_scenario() -> SimulationScenario:
     """Create noisy sensor demo scenario."""
     from nados.domain import (
-        VirtualObject, SensorDefinition, SensorType,
-        EnvironmentalConditions, VisualizationSettings,
-        ObjectType, CoordinateSystem
+        CoordinateSystem,
+        EnvironmentalConditions,
+        ObjectType,
+        SensorDefinition,
+        SensorType,
+        VirtualObject,
+        VisualizationSettings,
     )
-    from nados.domain.base import Vector3D, Matrix3x3
-    
+    from nados.domain.base import Matrix3x3, Vector3D
+
     # Object with constant velocity
     obj = VirtualObject(
         object_id="target_001",
@@ -188,7 +200,7 @@ def _create_noisy_sensor_scenario() -> SimulationScenario:
         simulation_enabled=True,
         metadata={"motion_model": "constant_velocity"},
     )
-    
+
     # Radar with significant noise
     sensor = SensorDefinition(
         sensor_id="radar_noisy",
@@ -198,7 +210,7 @@ def _create_noisy_sensor_scenario() -> SimulationScenario:
         measurement_noise=Matrix3x3.diagonal([500, 500, 200]),  # High noise
         metadata={"dropout_probability": 0.1},  # 10% dropout
     )
-    
+
     return SimulationScenario(
         scenario_id="noisy_sensor",
         schema_version="v1",
@@ -224,12 +236,16 @@ def _create_noisy_sensor_scenario() -> SimulationScenario:
 def _create_multi_sensor_scenario() -> SimulationScenario:
     """Create multi-sensor demo scenario."""
     from nados.domain import (
-        VirtualObject, SensorDefinition, SensorType,
-        EnvironmentalConditions, VisualizationSettings,
-        ObjectType, CoordinateSystem
+        CoordinateSystem,
+        EnvironmentalConditions,
+        ObjectType,
+        SensorDefinition,
+        SensorType,
+        VirtualObject,
+        VisualizationSettings,
     )
-    from nados.domain.base import Vector3D, Matrix3x3
-    
+    from nados.domain.base import Matrix3x3, Vector3D
+
     # Single target
     obj = VirtualObject(
         object_id="target_001",
@@ -241,7 +257,7 @@ def _create_multi_sensor_scenario() -> SimulationScenario:
         simulation_enabled=True,
         metadata={"motion_model": "constant_velocity"},
     )
-    
+
     # Multiple sensors at different positions
     sensors = [
         SensorDefinition(
@@ -269,7 +285,7 @@ def _create_multi_sensor_scenario() -> SimulationScenario:
             metadata={"dropout_probability": 0.01},
         ),
     ]
-    
+
     return SimulationScenario(
         scenario_id="multi_sensor_demo",
         schema_version="v1",

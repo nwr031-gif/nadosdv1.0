@@ -1,7 +1,7 @@
 """Visualization package initialization."""
 
 from .view2d import View2D, create_2d_view
-from .view3d import View3D, create_3d_view, Panda3DAvailable
+from .view3d import Panda3DAvailable, View3D, create_3d_view
 
 __all__ = [
     "View2D",

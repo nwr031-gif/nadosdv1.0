@@ -3,20 +3,17 @@ Arabic language support for UI.
 """
 
 import os
-from typing import Dict
 
 # Arabic translations for UI elements
-ARABIC_TRANSLATIONS: Dict[str, str] = {
+ARABIC_TRANSLATIONS: dict[str, str] = {
     # Application
     "app_name": "نظام نادوس للبحوث والمحاكاة",
     "app_version": "الإصدار 1.0.0",
-    
     # Main window
     "main_title": "مركز القيادة والسيطرة - محاكاة الدفاع الجوي",
     "simulation_status": "حالة المحاكاة",
     "current_scenario": "السيناريو الحالي",
     "simulation_clock": "ساعة المحاكاة",
-    
     # Controls
     "start_simulation": "تشغيل المحاكاة",
     "pause_simulation": "إيقاف مؤقت",
@@ -25,7 +22,6 @@ ARABIC_TRANSLATIONS: Dict[str, str] = {
     "reset_simulation": "إعادة ضبط",
     "select_scenario": "اختيار سيناريو",
     "simulation_speed": "سرعة المحاكاة",
-    
     # Navigation
     "home": "الرئيسية",
     "view_2d": "المشهد ثنائي الأبعاد",
@@ -36,7 +32,6 @@ ARABIC_TRANSLATIONS: Dict[str, str] = {
     "reports": "التقارير",
     "tests": "الاختبارات",
     "settings": "الإعدادات",
-    
     # Dashboard
     "active_objects": "الأجسام النشطة",
     "valid_observations": "الملاحظات الصحيحة",
@@ -49,7 +44,6 @@ ARABIC_TRANSLATIONS: Dict[str, str] = {
     "memory_usage": "استخدام الذاكرة",
     "database_status": "حالة قاعدة البيانات",
     "system_health": "صحة النظام",
-    
     # Simulation view
     "schematic_map": "الخريطة التخطيطية",
     "sensor_locations": "مواقع المستشعرات",
@@ -60,7 +54,6 @@ ARABIC_TRANSLATIONS: Dict[str, str] = {
     "track_uncertainty": "عدم اليقين في المسار",
     "historical_trails": "المسارات التاريخية",
     "object_details": "تفاصيل الجسم",
-    
     # Scenario editor
     "create_scenario": "إنشاء سيناريو",
     "scenario_name": "اسم السيناريو",
@@ -73,7 +66,6 @@ ARABIC_TRANSLATIONS: Dict[str, str] = {
     "save_scenario": "حفظ السيناريو",
     "load_scenario": "تحميل سيناريو",
     "validate_scenario": "التحقق من السيناريو",
-    
     # Results viewer
     "run_history": "تاريخ التشغيل",
     "scenario_comparison": "مقارنة السيناريوهات",
@@ -81,14 +73,12 @@ ARABIC_TRANSLATIONS: Dict[str, str] = {
     "observation_vs_estimate": "الملاحظات مقابل التقديرات",
     "error_summary": "ملخص الأخطاء",
     "export_report": "تصدير التقرير",
-    
     # Events
     "event_type": "نوع الحدث",
     "timestamp": "الطابع الزمني",
     "severity": "الخطورة",
     "message": "الرسالة",
     "source": "المصدر",
-    
     # Status
     "running": "قيد التشغيل",
     "paused": "متوقف مؤقتاً",
@@ -96,13 +86,10 @@ ARABIC_TRANSLATIONS: Dict[str, str] = {
     "completed": "مكتمل",
     "error": "خطأ",
     "idle": "جاهز",
-    
     # Severity
     "info": "معلومات",
     "warning": "تحذير",
-    "error": "خطأ",
     "critical": "حرج",
-    
     # Messages
     "simulation_started": "تم بدء المحاكاة",
     "simulation_paused": "تم إيقاف المحاكاة مؤقتاً",
@@ -115,7 +102,6 @@ ARABIC_TRANSLATIONS: Dict[str, str] = {
     "report_generated": "تم إنشاء التقرير",
     "database_connected": "قاعدة البيانات متصلة",
     "database_error": "خطأ في قاعدة البيانات",
-    
     # 3D View
     "toggle_3d": "تبديل العرض ثلاثي الأبعاد",
     "camera_controls": "تحكم الكاميرا",
@@ -126,7 +112,6 @@ ARABIC_TRANSLATIONS: Dict[str, str] = {
     "show_axes": "إظهار المحاور",
     "show_grid": "إظهار الشبكة",
     "simulation_label": "محاكاة",
-    
     # Settings
     "language": "اللغة",
     "theme": "السمة",
@@ -135,7 +120,6 @@ ARABIC_TRANSLATIONS: Dict[str, str] = {
     "max_duration": "أقصى مدة",
     "max_objects": "أقصى عدد أجسام",
     "enable_3d": "تمكين العرض ثلاثي الأبعاد",
-    
     # Validation
     "validation_passed": "التحقق نجح",
     "validation_failed": "التحقق فشل",
@@ -148,27 +132,26 @@ ARABIC_TRANSLATIONS: Dict[str, str] = {
 def setup_arabic_support(app) -> None:
     """Set up Arabic RTL support for Qt application."""
     from PyQt6.QtCore import Qt
-    from PyQt6.QtWidgets import QApplication
-    
+
     # Set application layout direction to RTL
     app.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
-    
+
     # Set default font for Arabic
     from PyQt6.QtGui import QFont, QFontDatabase
-    
+
     # Try to load Noto Sans Arabic
     font_families = QFontDatabase.families()
     arabic_font = None
-    
+
     for family in ["Noto Sans Arabic", "Amiri", "Scheherazade", "Arial", "Tahoma"]:
         if family in font_families:
             arabic_font = family
             break
-    
+
     if arabic_font:
         font = QFont(arabic_font, 10)
         app.setFont(font)
-    
+
     # Set environment for proper Arabic shaping
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 
@@ -178,6 +161,6 @@ def translate_ui(key: str, default: str = "") -> str:
     return ARABIC_TRANSLATIONS.get(key, default)
 
 
-def get_all_translations() -> Dict[str, str]:
+def get_all_translations() -> dict[str, str]:
     """Get all translations dictionary."""
     return ARABIC_TRANSLATIONS.copy()

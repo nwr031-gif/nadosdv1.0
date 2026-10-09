@@ -1,10 +1,10 @@
 """Fusion package initialization."""
 
 from .fusion_algorithms import (
-    weighted_average_fusion,
     covariance_intersection_fusion,
-    track_to_track_fusion,
     detect_conflicts,
+    track_to_track_fusion,
+    weighted_average_fusion,
 )
 from .fusion_service import DataFusionService, FusionMethod
 

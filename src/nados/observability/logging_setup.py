@@ -5,26 +5,25 @@ Structured logging setup for NADOS Dv1.0.
 import logging
 import logging.config
 import logging.handlers
-import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import yaml
 
 from nados.config import get_config
 
 
-def setup_logging(config_path: Optional[str] = None) -> None:
+def setup_logging(config_path: str | None = None) -> None:
     """Set up application logging from configuration."""
-    
+
     # Get logging config from app config
     app_config = get_config()
     log_config = app_config.logging
-    
+
     # Ensure log directory exists
     log_dir = Path(log_config.directory)
     log_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Build logging configuration dict
     logging_config = {
         "version": 1,
@@ -39,7 +38,11 @@ def setup_logging(config_path: Optional[str] = None) -> None:
                 "datefmt": log_config.date_format,
             },
             "json": {
-                "format": '{"timestamp": "%(asctime)s", "level": "%(levelname)s", "logger": "%(name)s", "line": %(lineno)d, "function": "%(funcName)s", "message": "%(message)s"}',
+                "format": (
+                    '{"timestamp": "%(asctime)s", "level": "%(levelname)s", '
+                    '"logger": "%(name)s", "line": %(lineno)d, '
+                    '"function": "%(funcName)s", "message": "%(message)s"}'
+                ),
                 "datefmt": log_config.date_format,
             },
         },
@@ -96,39 +99,39 @@ def setup_logging(config_path: Optional[str] = None) -> None:
             "handlers": ["console", "file", "error_file"],
         },
     }
-    
+
     # Load from YAML if provided
     if config_path and Path(config_path).exists():
-        with open(config_path, "r", encoding="utf-8") as f:
+        with open(config_path, encoding="utf-8") as f:
             yaml_config = yaml.safe_load(f)
             if yaml_config:
                 logging_config.update(yaml_config)
-    
+
     logging.config.dictConfig(logging_config)
 
 
 class LoggingContext:
     """Context manager for adding contextual information to logs."""
-    
+
     def __init__(self, **context: Any) -> None:
         self.context = context
         self.old_factory = logging.getLogRecordFactory()
-    
+
     def __enter__(self) -> "LoggingContext":
         def record_factory(*args: Any, **kwargs: Any) -> logging.LogRecord:
             record = self.old_factory(*args, **kwargs)
             for key, value in self.context.items():
                 setattr(record, key, value)
             return record
-        
+
         logging.setLogRecordFactory(record_factory)
         return self
-    
+
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         logging.setLogRecordFactory(self.old_factory)
 
 
-_logger_cache: Dict[str, logging.Logger] = {}
+_logger_cache: dict[str, logging.Logger] = {}
 
 
 def get_logger(name: str) -> logging.Logger:

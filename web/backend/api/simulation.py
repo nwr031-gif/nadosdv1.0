@@ -2,12 +2,14 @@
 Simulation API endpoints.
 """
 
+import os
+from typing import Any
+
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
-from typing import Dict, Any, Optional
-import os
 
 router = APIRouter()
+
 
 class SimulationStatusResponse(BaseModel):
     status: str
@@ -19,13 +21,16 @@ class SimulationStatusResponse(BaseModel):
     sensors_count: int
     tracks_count: int
 
+
 class SimulationControlResponse(BaseModel):
     success: bool
     message: str
-    data: Optional[Dict[str, Any]] = None
+    data: dict[str, Any] | None = None
+
 
 class LoadScenarioRequest(BaseModel):
     scenario_id: str
+
 
 class SpeedRequest(BaseModel):
     speed: float
@@ -45,7 +50,7 @@ async def get_simulation_status(request: Request):
             speed=1.0,
             objects_count=0,
             sensors_count=0,
-            tracks_count=0
+            tracks_count=0,
         )
 
     engine = nados_app.engine
@@ -57,7 +62,7 @@ async def get_simulation_status(request: Request):
         speed=engine.clock.time.speed_multiplier,
         objects_count=len(engine._object_simulators),
         sensors_count=len(engine._sensor_simulators),
-        tracks_count=len(getattr(nados_app, "tracker", None) and nados_app.tracker.manager.tracks or {})
+        tracks_count=len(getattr(nados_app, "tracker", None) and nados_app.tracker.manager.tracks or {}),
     )
 
 
@@ -72,10 +77,7 @@ async def get_objects(request: Request):
     objects = {}
     for obj_id, obj_sim in nados_app.engine._object_simulators.items():
         state = obj_sim.state
-        trail = [
-            {"x": s.position.x, "y": s.position.y, "z": s.position.z}
-            for s in obj_sim.get_trajectory()[-100:]
-        ]
+        trail = [{"x": s.position.x, "y": s.position.y, "z": s.position.z} for s in obj_sim.get_trajectory()[-100:]]
         objects[obj_id] = {
             "id": obj_id,
             "type": obj_sim.virtual_object.object_type,
@@ -106,10 +108,10 @@ async def get_sensors(request: Request):
             "position": {
                 "x": sensor_sim.sensor_def.simulated_position.x,
                 "y": sensor_sim.sensor_def.simulated_position.y,
-                "z": sensor_sim.sensor_def.simulated_position.z
+                "z": sensor_sim.sensor_def.simulated_position.z,
             },
             "sampling_interval": sensor_sim.sensor_def.sampling_interval,
-            "status": "active" if sensor_sim._available else "inactive"
+            "status": "active" if sensor_sim._available else "inactive",
         }
 
     return {"sensors": sensors}
@@ -132,18 +134,16 @@ async def get_tracks(request: Request):
             "position": {
                 "x": estimate.estimated_position.x,
                 "y": estimate.estimated_position.y,
-                "z": estimate.estimated_position.z
+                "z": estimate.estimated_position.z,
             },
             "velocity": {
                 "x": estimate.estimated_velocity.x,
                 "y": estimate.estimated_velocity.y,
-                "z": estimate.estimated_velocity.z
+                "z": estimate.estimated_velocity.z,
             },
             "observation_count": estimate.observation_count,
             "status": estimate.tracking_status,
-            "covariance_trace": sum(
-                estimate.covariance_or_uncertainty.data[i][i] for i in range(3)
-            ),
+            "covariance_trace": sum(estimate.covariance_or_uncertainty.data[i][i] for i in range(3)),
         }
 
     return {"tracks": tracks}
@@ -159,17 +159,10 @@ async def start_simulation(request: Request):
 
     try:
         if nados_app.engine.state.value == "running":
-            return SimulationControlResponse(
-                success=False,
-                message="Simulation already running"
-            )
+            return SimulationControlResponse(success=False, message="Simulation already running")
 
         nados_app.engine.start()
-        return SimulationControlResponse(
-            success=True,
-            message="Simulation started",
-            data={"status": "running"}
-        )
+        return SimulationControlResponse(success=True, message="Simulation started", data={"status": "running"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to start simulation: {str(e)}")
 
@@ -184,11 +177,7 @@ async def pause_simulation(request: Request):
 
     try:
         nados_app.engine.pause()
-        return SimulationControlResponse(
-            success=True,
-            message="Simulation paused",
-            data={"status": "paused"}
-        )
+        return SimulationControlResponse(success=True, message="Simulation paused", data={"status": "paused"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to pause: {str(e)}")
 
@@ -203,11 +192,7 @@ async def resume_simulation(request: Request):
 
     try:
         nados_app.engine.start()  # Resumes
-        return SimulationControlResponse(
-            success=True,
-            message="Simulation resumed",
-            data={"status": "running"}
-        )
+        return SimulationControlResponse(success=True, message="Simulation resumed", data={"status": "running"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to resume: {str(e)}")
 
@@ -223,11 +208,7 @@ async def stop_simulation(request: Request):
     try:
         nados_app.engine.stop()
         nados_app._save_simulation_results()
-        return SimulationControlResponse(
-            success=True,
-            message="Simulation stopped",
-            data={"status": "stopped"}
-        )
+        return SimulationControlResponse(success=True, message="Simulation stopped", data={"status": "stopped"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to stop: {str(e)}")
 
@@ -242,11 +223,7 @@ async def reset_simulation(request: Request):
 
     try:
         nados_app.engine.reset()
-        return SimulationControlResponse(
-            success=True,
-            message="Simulation reset",
-            data={"status": "idle"}
-        )
+        return SimulationControlResponse(success=True, message="Simulation reset", data={"status": "idle"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to reset: {str(e)}")
 
@@ -265,9 +242,7 @@ async def set_speed(request: Request, speed_req: SpeedRequest):
     try:
         nados_app.engine.clock.set_speed(speed_req.speed)
         return SimulationControlResponse(
-            success=True,
-            message=f"Speed set to {speed_req.speed}x",
-            data={"speed": speed_req.speed}
+            success=True, message=f"Speed set to {speed_req.speed}x", data={"speed": speed_req.speed}
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to set speed: {str(e)}")
@@ -289,9 +264,7 @@ async def load_scenario(request: Request, load_req: LoadScenarioRequest):
             raise HTTPException(status_code=404, detail="Scenario not found or invalid")
 
         return SimulationControlResponse(
-            success=True,
-            message=f"Scenario {load_req.scenario_id} loaded",
-            data={"scenario_id": load_req.scenario_id}
+            success=True, message=f"Scenario {load_req.scenario_id} loaded", data={"scenario_id": load_req.scenario_id}
         )
     except HTTPException:
         raise
@@ -313,7 +286,7 @@ async def step_simulation(request: Request):
             "success": result.success,
             "current_time": result.current_time,
             "events_count": len(result.events),
-            "observations_count": len(result.observations)
+            "observations_count": len(result.observations),
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Step failed: {str(e)}")

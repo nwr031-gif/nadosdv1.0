@@ -1,6 +1,6 @@
 """Reporting package initialization."""
 
-from .generator import ReportGenerator, ReportFormat, generate_demo_report
+from .generator import ReportFormat, ReportGenerator, generate_demo_report
 from .templates import ReportTemplate, get_template
 
 __all__ = [

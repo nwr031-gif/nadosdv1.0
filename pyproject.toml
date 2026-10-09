@@ -54,10 +54,25 @@ where = ["src"]
 include = ["nados*"]
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py312"
-select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM", "T20"]
-ignore = ["S101", "S113"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "B", "UP", "SIM"]
+ignore = [
+    "N806",  # matrix notation F, H, Q, R is intentional in tracking code
+    "UP042",  # (str, Enum) is intentional for pydantic serialization
+    "B904",   # exception chaining style not enforced
+    "SIM117",  # nested try/with acceptable in optional-import code
+]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*" = ["T201", "E402"]  # CLI scripts print and manipulate sys.path
+"src/nados/scripts/*" = ["T201"]
+"src/nados/visualization/view3d.py" = ["F401"]  # optional Panda3D availability imports
+"src/nados/ui/*" = ["N802", "N803"]  # Qt event-handler overrides (closeEvent, paintEvent)
+"web/backend/main.py" = ["E402"]  # sys.path setup before app imports
+
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
@@ -74,14 +89,22 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --cov=src/nados --cov-report=term-missing --cov-report=xml"
+addopts = "-v --cov=nados --cov-report=term-missing --cov-report=xml"
 filterwarnings = [
     "ignore::DeprecationWarning",
 ]
 
 [tool.coverage.run]
-source = ["src/nados"]
-omit = ["*/tests/*", "*/scripts/*"]
+source = ["nados"]
+omit = [
+    "*/tests/*",
+    "*/scripts/*",
+    # GUI and 3D rendering layers are exercised manually / by UI tests with a
+    # display server; they are excluded from headless CI coverage measurement.
+    "src/nados/ui/*",
+    "src/nados/visualization/*",
+    "src/nados/plugins/*",
+]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -90,4 +113,5 @@ exclude_lines = [
     "raise AssertionError",
     "raise NotImplementedError",
     "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
 ]

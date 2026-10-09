@@ -109,23 +109,26 @@ from nados.module import ClassUnderTest
 
 class TestClassUnderTest:
     """Tests for ClassUnderTest."""
-    
+
     def test_basic_functionality(self):
         """Test basic operation."""
         obj = ClassUnderTest()
         result = obj.method()
         assert result == expected_value
-    
+
     def test_edge_case(self):
         """Test edge condition."""
         with pytest.raises(ValueError):
             ClassUnderTest(invalid_param)
-    
-    @pytest.mark.parametrize("input,expected", [
-        (0, 0),
-        (1, 1),
-        (-1, 1),
-    ])
+
+    @pytest.mark.parametrize(
+        "input,expected",
+        [
+            (0, 0),
+            (1, 1),
+            (-1, 1),
+        ],
+    )
     def test_parametrized(self, input, expected):
         """Parametrized test."""
         assert ClassUnderTest.method(input) == expected
@@ -257,7 +260,7 @@ pytest tests/unit/ tests/integration/ --cov=src/nados --cov-fail-under=85
 # tests/scripts/generate_fixtures.py
 def generate_kalman_fixture():
     kf = KalmanFilter()
-    kf.initialize(Vector3D(0,0,0), Vector3D(10,0,0), 0.0, "test")
+    kf.initialize(Vector3D(0, 0, 0), Vector3D(10, 0, 0), 0.0, "test")
     kf.predict(1.0)
     np.save("tests/fixtures/expected/kalman_step_1.npy", kf.get_state_vector())
 ```

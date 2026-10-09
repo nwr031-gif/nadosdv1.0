@@ -2,18 +2,21 @@
 Health check endpoint.
 """
 
-from fastapi import APIRouter, Depends
-from pydantic import BaseModel
-from typing import Dict, Any
 import time
+from typing import Any
+
+from fastapi import APIRouter
+from pydantic import BaseModel
 
 router = APIRouter()
+
 
 class HealthResponse(BaseModel):
     status: str
     timestamp: float
     version: str
-    checks: Dict[str, Any]
+    checks: dict[str, Any]
+
 
 @router.get("/health", response_model=HealthResponse)
 async def health_check():
@@ -22,17 +25,15 @@ async def health_check():
         status="healthy",
         timestamp=time.time(),
         version="1.0.0",
-        checks={
-            "database": "healthy",
-            "simulation": "healthy",
-            "api": "healthy"
-        }
+        checks={"database": "healthy", "simulation": "healthy", "api": "healthy"},
     )
+
 
 @router.get("/health/live")
 async def liveness():
     """Liveness probe."""
     return {"status": "alive"}
+
 
 @router.get("/health/ready")
 async def readiness():

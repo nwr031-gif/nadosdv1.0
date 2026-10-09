@@ -1,8 +1,8 @@
 """Observability package initialization."""
 
-from .logging_setup import setup_logging, get_logger, LoggingContext
+from .health import HealthCheck, HealthStatus, get_health_checker, run_health_checks
+from .logging_setup import LoggingContext, get_logger, setup_logging
 from .metrics import MetricsCollector, get_metrics_collector
-from .health import HealthCheck, HealthStatus, run_health_checks, get_health_checker
 
 __all__ = [
     "setup_logging",

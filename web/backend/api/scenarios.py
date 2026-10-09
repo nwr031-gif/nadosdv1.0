@@ -2,14 +2,14 @@
 Scenarios API endpoints.
 """
 
-from fastapi import APIRouter, HTTPException, Request, Query
-from pydantic import BaseModel
-from typing import List, Optional
-import os
 import json
 from pathlib import Path
 
+from fastapi import APIRouter, HTTPException, Query, Request
+from pydantic import BaseModel
+
 router = APIRouter()
+
 
 class ScenarioResponse(BaseModel):
     id: str
@@ -22,19 +22,18 @@ class ScenarioResponse(BaseModel):
     objects_count: int
     sensors_count: int
 
+
 class ScenarioListResponse(BaseModel):
-    scenarios: List[ScenarioResponse]
+    scenarios: list[ScenarioResponse]
     total: int
+
 
 def _scenarios_dir(request: Request) -> Path:
     return Path(getattr(request.app.state, "scenarios_dir", "scenarios"))
 
+
 @router.get("", response_model=ScenarioListResponse)
-async def list_scenarios(
-    request: Request,
-    limit: int = Query(50, ge=1, le=100),
-    offset: int = Query(0, ge=0)
-):
+async def list_scenarios(request: Request, limit: int = Query(50, ge=1, le=100), offset: int = Query(0, ge=0)):
     """List available scenarios."""
     scenarios_dir = _scenarios_dir(request)
     scenarios = []
@@ -42,28 +41,28 @@ async def list_scenarios(
     if scenarios_dir.exists():
         for file in sorted(scenarios_dir.glob("*.json")):
             try:
-                with open(file, 'r', encoding='utf-8') as f:
+                with open(file, encoding="utf-8") as f:
                     data = json.load(f)
 
-                scenarios.append(ScenarioResponse(
-                    id=data.get("scenario_id", file.stem),
-                    name=data.get("name", file.stem),
-                    description=data.get("description", ""),
-                    duration_seconds=data.get("duration_seconds", 0),
-                    timestep_seconds=data.get("timestep_seconds", 0),
-                    random_seed=data.get("random_seed", 0),
-                    coordinate_system=data.get("coordinate_system", "ENU"),
-                    objects_count=len(data.get("virtual_objects", [])),
-                    sensors_count=len(data.get("simulated_sensors", []))
-                ))
+                scenarios.append(
+                    ScenarioResponse(
+                        id=data.get("scenario_id", file.stem),
+                        name=data.get("name", file.stem),
+                        description=data.get("description", ""),
+                        duration_seconds=data.get("duration_seconds", 0),
+                        timestep_seconds=data.get("timestep_seconds", 0),
+                        random_seed=data.get("random_seed", 0),
+                        coordinate_system=data.get("coordinate_system", "ENU"),
+                        objects_count=len(data.get("virtual_objects", [])),
+                        sensors_count=len(data.get("simulated_sensors", [])),
+                    )
+                )
             except Exception:
                 continue
 
     total = len(scenarios)
-    return ScenarioListResponse(
-        scenarios=scenarios[offset:offset+limit],
-        total=total
-    )
+    return ScenarioListResponse(scenarios=scenarios[offset : offset + limit], total=total)
+
 
 @router.get("/{scenario_id}")
 async def get_scenario(scenario_id: str, request: Request):
@@ -74,11 +73,12 @@ async def get_scenario(scenario_id: str, request: Request):
         raise HTTPException(status_code=404, detail="Scenario not found")
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             data = json.load(f)
         return data
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to load scenario: {str(e)}")
+
 
 @router.post("")
 async def create_scenario(scenario: dict, request: Request):
@@ -95,11 +95,12 @@ async def create_scenario(scenario: dict, request: Request):
         raise HTTPException(status_code=409, detail="Scenario already exists")
 
     try:
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(scenario, f, indent=2, ensure_ascii=False)
         return {"message": "Scenario created successfully", "id": scenario_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create scenario: {str(e)}")
+
 
 @router.put("/{scenario_id}")
 async def update_scenario(scenario_id: str, scenario: dict, request: Request):
@@ -110,11 +111,12 @@ async def update_scenario(scenario_id: str, scenario: dict, request: Request):
         raise HTTPException(status_code=404, detail="Scenario not found")
 
     try:
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(scenario, f, indent=2, ensure_ascii=False)
         return {"message": "Scenario updated successfully", "id": scenario_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update scenario: {str(e)}")
+
 
 @router.delete("/{scenario_id}")
 async def delete_scenario(scenario_id: str, request: Request):
@@ -130,6 +132,7 @@ async def delete_scenario(scenario_id: str, request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete scenario: {str(e)}")
 
+
 @router.post("/{scenario_id}/validate")
 async def validate_scenario(scenario_id: str, request: Request):
     """Validate a scenario."""
@@ -139,13 +142,20 @@ async def validate_scenario(scenario_id: str, request: Request):
         raise HTTPException(status_code=404, detail="Scenario not found")
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             data = json.load(f)
 
         errors = []
 
-        required_fields = ["scenario_id", "schema_version", "name", "duration_seconds",
-                          "timestep_seconds", "random_seed", "coordinate_system"]
+        required_fields = [
+            "scenario_id",
+            "schema_version",
+            "name",
+            "duration_seconds",
+            "timestep_seconds",
+            "random_seed",
+            "coordinate_system",
+        ]
         for field in required_fields:
             if field not in data:
                 errors.append(f"Missing required field: {field}")

@@ -17,21 +17,20 @@ def main() -> int:
     """Initialize the database."""
     config = get_config()
     db_path = config.database.path
-    
+
     print(f"Initializing database at: {db_path}")
-    
+
     try:
         db = init_database(db_path, config.database.echo)
         print("Database initialized successfully!")
-        
+
         # Verify tables
         with db.session() as session:
             from sqlalchemy import text
-            tables = session.execute(text(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            )).fetchall()
+
+            tables = session.execute(text("SELECT name FROM sqlite_master WHERE type='table'")).fetchall()
             print(f"Created tables: {[t[0] for t in tables]}")
-        
+
         db.close()
         return 0
     except Exception as e:

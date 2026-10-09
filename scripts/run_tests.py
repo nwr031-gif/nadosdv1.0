@@ -3,8 +3,8 @@
 Test runner script for NADOS Dv1.0.
 """
 
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -12,24 +12,26 @@ def run_tests(args: list = None) -> int:
     """Run pytest with configured options."""
     if args is None:
         args = sys.argv[1:]
-    
+
     # Default pytest arguments
     pytest_args = [
-        "python", "-m", "pytest",
+        "python",
+        "-m",
+        "pytest",
         "-v",
         "--tb=short",
         "--cov=src/nados",
         "--cov-report=term-missing",
         "--cov-report=xml",
     ]
-    
+
     # Add user arguments
     pytest_args.extend(args)
-    
+
     # Run tests
     project_root = Path(__file__).parent.parent
     result = subprocess.run(pytest_args, cwd=project_root)
-    
+
     return result.returncode
 
 

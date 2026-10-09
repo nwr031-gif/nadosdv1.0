@@ -4,53 +4,53 @@ Configuration manager for loading and accessing application configuration.
 
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import yaml
 from pydantic import ValidationError
 
-from .models import AppConfig, DatabaseConfig, LoggingConfig, SimulationConfig, VisualizationConfig
+from .models import AppConfig
 
 
 class ConfigManager:
     """Manages application configuration loading and access."""
-    
+
     _instance: Optional["ConfigManager"] = None
-    _config: Optional[AppConfig] = None
-    
+    _config: AppConfig | None = None
+
     def __new__(cls) -> "ConfigManager":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
-    
+
     def __init__(self) -> None:
         if self._config is None:
             self._config = self._load_default_config()
-    
+
     def _load_default_config(self) -> AppConfig:
         """Load default configuration."""
         return AppConfig()
-    
+
     def load_from_file(self, config_path: str) -> AppConfig:
         """Load configuration from YAML file."""
         path = Path(config_path)
         if not path.exists():
             raise FileNotFoundError(f"Configuration file not found: {config_path}")
-        
-        with open(path, "r", encoding="utf-8") as f:
+
+        with open(path, encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
-        
+
         # Apply environment variable overrides
         data = self._apply_env_overrides(data)
-        
+
         try:
             self._config = AppConfig(**data)
         except ValidationError as e:
             raise ValueError(f"Invalid configuration: {e}")
-        
+
         return self._config
-    
-    def _apply_env_overrides(self, data: Dict[str, Any]) -> Dict[str, Any]:
+
+    def _apply_env_overrides(self, data: dict[str, Any]) -> dict[str, Any]:
         """Apply environment variable overrides to configuration."""
         env_mappings = {
             "NADOS_DEBUG": ("debug", lambda x: x.lower() == "true"),
@@ -64,15 +64,15 @@ class ConfigManager:
             "NADOS_LOG_LEVEL": ("logging.level", str),
             "NADOS_LOG_DIR": ("logging.directory", str),
         }
-        
+
         for env_var, (config_path, converter) in env_mappings.items():
             value = os.getenv(env_var)
             if value is not None:
                 self._set_nested(data, config_path, converter(value))
-        
+
         return data
-    
-    def _set_nested(self, data: Dict[str, Any], path: str, value: Any) -> None:
+
+    def _set_nested(self, data: dict[str, Any], path: str, value: Any) -> None:
         """Set nested dictionary value using dot notation path."""
         keys = path.split(".")
         current = data
@@ -81,31 +81,31 @@ class ConfigManager:
                 current[key] = {}
             current = current[key]
         current[keys[-1]] = value
-    
+
     def get_config(self) -> AppConfig:
         """Get the current configuration."""
         if self._config is None:
             self._config = self._load_default_config()
         return self._config
-    
-    def update_config(self, updates: Dict[str, Any]) -> AppConfig:
+
+    def update_config(self, updates: dict[str, Any]) -> AppConfig:
         """Update configuration with new values."""
         if self._config is None:
             self._config = self._load_default_config()
-        
+
         current_dict = self._config.model_dump()
         current_dict.update(updates)
-        
+
         try:
             self._config = AppConfig(**current_dict)
         except ValidationError as e:
             raise ValueError(f"Invalid configuration update: {e}")
-        
+
         return self._config
 
 
 # Global instance
-_config_manager: Optional[ConfigManager] = None
+_config_manager: ConfigManager | None = None
 
 
 def get_config_manager() -> ConfigManager:

@@ -2,27 +2,25 @@
 NADOS Dv1.0 Web Backend - FastAPI Application
 """
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from contextlib import asynccontextmanager
 import os
 import sys
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 # Add parent directory to path for NADOS core modules
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src'))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, os.path.join(PROJECT_ROOT, "src"))
 
 from nados.config import get_config
-from nados.persistence import init_database, get_database
 from nados.orchestration import create_application
-from nados.simulation import SimulationEngine
-from nados.domain import SimulationScenario
+from nados.persistence import init_database
 
 # Add backend directory to path for API modules
 sys.path.insert(0, os.path.dirname(__file__))
 
-from api import scenarios, simulation, sensors, tracking, reports, health
+from api import health, reports, scenarios, sensors, simulation, tracking
 
 # Resolve project-relative directories
 SCENARIOS_DIR = os.path.join(PROJECT_ROOT, "scenarios")
@@ -32,29 +30,30 @@ DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 # Global NADOS application instance
 nados_app = None
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     global nados_app
-    
+
     # Initialize configuration
     config = get_config()
-    
+
     # Initialize database (store under project root /data)
     os.makedirs(DATA_DIR, exist_ok=True)
     db_path = os.path.join(DATA_DIR, "nados.db")
     init_database(db_path, config.database.echo)
-    
+
     # Create NADOS application
     nados_app = create_application()
-    
+
     # Load default scenario if available
     if os.path.exists(SCENARIOS_DIR):
-        scenario_files = sorted(f for f in os.listdir(SCENARIOS_DIR) if f.endswith('.json'))
+        scenario_files = sorted(f for f in os.listdir(SCENARIOS_DIR) if f.endswith(".json"))
         if scenario_files:
             first_scenario = os.path.join(SCENARIOS_DIR, scenario_files[0])
             nados_app.load_scenario(first_scenario)
-    
+
     # Store in app state for access in routes
     app.state.nados_app = nados_app
     app.state.scenarios_dir = SCENARIOS_DIR
@@ -89,6 +88,7 @@ async def lifespan(app: FastAPI):
     if nados_app:
         nados_app.shutdown()
 
+
 # Create FastAPI app
 app = FastAPI(
     title="NADOS Dv1.0 API",
@@ -96,7 +96,7 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
 # CORS middleware
@@ -116,6 +116,7 @@ app.include_router(sensors.router, prefix="/api/sensors", tags=["sensors"])
 app.include_router(tracking.router, prefix="/api/tracking", tags=["tracking"])
 app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
 
+
 # Root endpoint
 @app.get("/")
 async def root():
@@ -123,8 +124,9 @@ async def root():
         "name": "NADOS Dv1.0 API",
         "version": "1.0.0",
         "description": "Integrated Air Defense Research & Simulation Environment",
-        "docs": "/docs"
+        "docs": "/docs",
     }
+
 
 # API info endpoint
 @app.get("/api")
@@ -138,10 +140,12 @@ async def api_info():
             "simulation": "/api/simulation",
             "sensors": "/api/sensors",
             "tracking": "/api/tracking",
-            "reports": "/api/reports"
-        }
+            "reports": "/api/reports",
+        },
     }
+
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

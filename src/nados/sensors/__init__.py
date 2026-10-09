@@ -1,10 +1,15 @@
 """Sensors package initialization."""
 
-from .models import (
-    SensorModel, RadarModel, LidarModel, OpticalModel, GenericSensorModel,
-    SensorNoiseParams, create_sensor_model,
-)
 from .generator import ObservationGenerator
+from .models import (
+    GenericSensorModel,
+    LidarModel,
+    OpticalModel,
+    RadarModel,
+    SensorModel,
+    SensorNoiseParams,
+    create_sensor_model,
+)
 
 __all__ = [
     "SensorModel",

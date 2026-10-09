@@ -2,13 +2,9 @@
 SQLAlchemy models for persistence.
 """
 
-import json
 from datetime import datetime
-from typing import Optional
 
-from sqlalchemy import (
-    Column, String, Integer, Float, DateTime, Text, ForeignKey, Index, Boolean, LargeBinary
-)
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -16,9 +12,9 @@ from .database import Base
 
 class ScenarioModel(Base):
     """Scenario persistence model."""
-    
+
     __tablename__ = "scenarios"
-    
+
     id = Column(String(64), primary_key=True)
     schema_version = Column(String(16), nullable=False)
     name = Column(String(256), nullable=False)
@@ -30,9 +26,9 @@ class ScenarioModel(Base):
     scenario_data = Column(Text, nullable=False)  # JSON serialized
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     runs = relationship("RunModel", back_populates="scenario", cascade="all, delete-orphan")
-    
+
     __table_args__ = (
         Index("ix_scenarios_name", "name"),
         Index("ix_scenarios_created", "created_at"),
@@ -41,9 +37,9 @@ class ScenarioModel(Base):
 
 class RunModel(Base):
     """Simulation run persistence model."""
-    
+
     __tablename__ = "runs"
-    
+
     id = Column(String(64), primary_key=True)
     scenario_id = Column(String(64), ForeignKey("scenarios.id"), nullable=False)
     started_at = Column(DateTime, default=datetime.utcnow)
@@ -55,12 +51,12 @@ class RunModel(Base):
     summary_metrics = Column(Text)  # JSON serialized
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     scenario = relationship("ScenarioModel", back_populates="runs")
     observations = relationship("ObservationModel", back_populates="run", cascade="all, delete-orphan")
     tracks = relationship("TrackModel", back_populates="run", cascade="all, delete-orphan")
     events = relationship("EventModel", back_populates="run", cascade="all, delete-orphan")
-    
+
     __table_args__ = (
         Index("ix_runs_scenario", "scenario_id"),
         Index("ix_runs_status", "status"),
@@ -70,9 +66,9 @@ class RunModel(Base):
 
 class ObservationModel(Base):
     """Sensor observation persistence model."""
-    
+
     __tablename__ = "observations"
-    
+
     id = Column(String(64), primary_key=True)
     run_id = Column(String(64), ForeignKey("runs.id"), nullable=False)
     sensor_id = Column(String(64), nullable=False)
@@ -89,9 +85,9 @@ class ObservationModel(Base):
     validity_status = Column(String(32), nullable=False)
     scenario_id = Column(String(64), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+
     run = relationship("RunModel", back_populates="observations")
-    
+
     __table_args__ = (
         Index("ix_observations_run", "run_id"),
         Index("ix_observations_sensor", "sensor_id"),
@@ -101,9 +97,9 @@ class ObservationModel(Base):
 
 class TrackModel(Base):
     """Track estimate persistence model."""
-    
+
     __tablename__ = "tracks"
-    
+
     id = Column(String(64), primary_key=True)
     run_id = Column(String(64), ForeignKey("runs.id"), nullable=False)
     timestamp = Column(Float, nullable=False)
@@ -123,9 +119,9 @@ class TrackModel(Base):
     tracking_status = Column(String(32), nullable=False)
     source_sensors = Column(Text)  # JSON array
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+
     run = relationship("RunModel", back_populates="tracks")
-    
+
     __table_args__ = (
         Index("ix_tracks_run", "run_id"),
         Index("ix_tracks_time", "timestamp"),
@@ -135,9 +131,9 @@ class TrackModel(Base):
 
 class EventModel(Base):
     """Simulation event persistence model."""
-    
+
     __tablename__ = "events"
-    
+
     id = Column(String(64), primary_key=True)
     run_id = Column(String(64), ForeignKey("runs.id"), nullable=False)
     event_type = Column(String(64), nullable=False)
@@ -148,9 +144,9 @@ class EventModel(Base):
     associated_object_id = Column(String(64), nullable=True)
     metadata = Column(Text)  # JSON serialized
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+
     run = relationship("RunModel", back_populates="events")
-    
+
     __table_args__ = (
         Index("ix_events_run", "run_id"),
         Index("ix_events_type", "event_type"),
@@ -161,9 +157,9 @@ class EventModel(Base):
 
 class SettingsModel(Base):
     """Application settings persistence model."""
-    
+
     __tablename__ = "settings"
-    
+
     key = Column(String(128), primary_key=True)
     value = Column(Text, nullable=False)
     description = Column(Text)

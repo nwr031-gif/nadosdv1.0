@@ -1,8 +1,8 @@
 """Tracking package initialization."""
 
+from .association import DataAssociation, NearestNeighborAssociator, create_associator
 from .kalman import KalmanFilter, KalmanFilterConfig
 from .tracker import ObjectTracker, TrackManager
-from .association import DataAssociation, NearestNeighborAssociator, create_associator
 
 __all__ = [
     "KalmanFilter",
