@@ -42,7 +42,7 @@ jobs:
         run: mypy src/nados --ignore-missing-imports || true
 
   unit-tests:
-    name: Unit Tests
+    name: Unit Tests & Coverage
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -67,9 +67,14 @@ jobs:
       - name: Initialize database
         run: python -m nados.scripts.init_db
 
-      - name: Run unit tests with coverage
+      - name: Run unit tests
         run: |
-          python -m pytest tests/unit/ --cov=nados --cov-report=xml --cov-report=term --cov-fail-under=85
+          python -m pytest tests/unit/ -v --tb=short
+
+      - name: Run full suite with coverage gate (>=85% of core modules)
+        run: |
+          python -m pytest tests/unit/ tests/integration/ tests/regression/ \
+            --cov=nados --cov-report=xml --cov-report=term --cov-fail-under=85
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
