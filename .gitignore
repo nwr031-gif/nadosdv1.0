@@ -137,9 +137,8 @@ reports/
 *.db
 *.sqlite
 coverage.xml
-htmlcov/
+ htmlcov/
 .pytest_cache/
 .venv/
 __pycache__/
 *.py[cod]
-.github/

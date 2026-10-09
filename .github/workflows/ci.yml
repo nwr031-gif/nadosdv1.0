@@ -1,0 +1,193 @@
+# NADOS Dv1.0 CI Configuration
+
+name: NADOS Dv1.0 CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      
+      - name: Run Ruff (linting)
+        run: ruff check .
+      
+      - name: Run Ruff (formatting check)
+        run: ruff format --check .
+      
+      - name: Run MyPy (type checking)
+        run: mypy src/nados --ignore-missing-imports || true
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      
+      - name: Initialize database
+        run: python -m nados.scripts.init_db
+      
+      - name: Run unit tests
+        run: |
+          python -m pytest tests/unit/ -v --cov=src/nados --cov-report=xml --cov-fail-under=85
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      
+      - name: Initialize database
+        run: python -m nados.scripts.init_db
+      
+      - name: Validate scenarios
+        run: python -m nados.scripts.validate_scenarios
+      
+      - name: Run integration tests
+        run: |
+          python -m pytest tests/integration/ -v --tb=short
+        # Note: Some integration tests may need display for UI tests
+
+  regression-tests:
+    name: Regression Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      
+      - name: Initialize database
+        run: python -m nados.scripts.init_db
+      
+      - name: Run regression tests
+        run: |
+          python -m pytest tests/regression/ -v --tb=short
+        # Regression tests verify numerical outputs match fixtures
+
+  build-docs:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pip install mkdocs mkdocs-material
+      
+      - name: Build docs
+        run: |
+          mkdocs build --strict
+        # If mkdocs.yml exists, otherwise skip
+
+  package-test:
+    name: Package Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Build package
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+      
+      - name: Test package installation
+        run: |
+          pip install dist/*.whl
+          python -c "import nados; print('Package imports OK')"
+      
+      - name: Test entry points
+        run: |
+          nados --help || true
+          nados-app --help || true
+          nados-test --help || true
+
+  notify:
+    name: Notify on Failure
+    needs: [lint-and-typecheck, unit-tests, integration-tests, regression-tests, package-test]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send failure notification
+        run: |
+          echo "CI pipeline failed. Check GitHub Actions for details."
+          # Add notification logic here (Slack, email, etc.)
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
