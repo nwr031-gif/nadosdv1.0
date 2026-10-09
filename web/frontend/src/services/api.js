@@ -1,7 +1,10 @@
 import axios from 'axios'
 
+// API base resolution order:
+// 1. VITE_API_BASE at build time (e.g. https://backend.example.com/api)
+// 2. Same-origin /api (dev proxy, Docker nginx, or Cloudflare Pages Function proxy)
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE || '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

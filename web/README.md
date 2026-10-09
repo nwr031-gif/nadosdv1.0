@@ -62,6 +62,60 @@ docker-compose up -d
 # API Docs: http://localhost:8000/docs
 ```
 
+### Cloudflare Pages / Workers
+
+The static frontend can be hosted on Cloudflare. The FastAPI backend
+cannot run inside Cloudflare (Python + SQLite process) — host it anywhere
+and point the frontend/proxy at it.
+
+Prepared artifacts:
+
+| File | Purpose |
+|------|---------|
+| `web/frontend/public/_redirects` | SPA fallback for Pages routing |
+| `web/frontend/functions/api/[[path]].js` | Pages Function that proxies `/api/*` to `BACKEND_URL` |
+| `web/frontend/src/worker.js` + `wrangler.toml` | Alternative Workers static-assets deployment with the same proxy |
+| `.github/workflows/deploy-cloudflare.yml` | CI deployment to the Pages project `nadosdv1` |
+
+Manual deployment (Pages):
+
+```bash
+cd web/frontend
+npm ci && npm run build
+
+# Requires an API token with "Account -> Cloudflare Pages -> Edit"
+export CLOUDFLARE_API_TOKEN=...        # PowerShell: $env:CLOUDFLARE_API_TOKEN="..."
+npx wrangler@4 pages deploy dist --project-name=nadosdv1 --branch=main
+```
+
+Alternative deployment (Worker, static assets):
+
+```bash
+cd web/frontend
+npm ci && npm run build
+
+# Requires an API token with "Account -> Workers Scripts -> Edit"
+npx wrangler@4 deploy
+```
+
+After deployment, configure the backend URL so `/api/*` works:
+
+- Pages: project Settings -> Environment variables -> add `BACKEND_URL`
+  (production), e.g. `https://nados-api.example.com`
+  (the Function forwards `/api/...` to `BACKEND_URL/api/...`).
+- Worker: `npx wrangler secret put BACKEND_URL`.
+
+If `BACKEND_URL` is not set, `/api/*` returns a clear 503 JSON error and
+the UI stays usable (it shows "قاعدة البيانات غير متصلة").
+
+CI deployment uses two repository secrets:
+
+- `CLOUDFLARE_API_TOKEN` — token with **Cloudflare Pages: Edit**
+- `CLOUDFLARE_ACCOUNT_ID` — `12649c0d3d106dcb980f606b668e53e2`
+
+and the optional repository variable `VITE_API_BASE` (e.g.
+`https://api.example.com/api`) to hardcode the backend at build time.
+
 ## API Endpoints
 
 ### Scenarios

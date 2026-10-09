@@ -1,0 +1,27 @@
+# NADOS Dv1.0 - Cloudflare Worker configuration
+#
+# Deploys the built frontend (dist/) as static assets and runs the
+# /api proxy worker (src/worker.js).
+#
+# Usage:
+#   cd web/frontend
+#   npm run build
+#   set CLOUDFLARE_API_TOKEN=...   (Workers Scripts: Edit permission)
+#   npx wrangler deploy
+#
+# After deploying, point the Worker at a hosted FastAPI backend:
+#   npx wrangler secret put BACKEND_URL
+#   (enter e.g. https://your-backend.example.com)
+
+name = "nadosdv1"
+main = "src/worker.js"
+compatibility_date = "2024-12-01"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+# Uncomment for local development proxying:
+# [vars]
+# BACKEND_URL = "http://localhost:8000"
