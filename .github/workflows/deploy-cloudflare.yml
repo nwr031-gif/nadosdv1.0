@@ -28,6 +28,10 @@ jobs:
         working-directory: web/frontend
         run: npm ci
 
+      - name: Install Wrangler
+        working-directory: web/frontend
+        run: npm install --no-save wrangler@4
+
       - name: Build frontend
         working-directory: web/frontend
         run: npm run build
