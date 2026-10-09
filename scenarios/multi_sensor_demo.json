@@ -1,0 +1,80 @@
+{
+  "scenario_id": "multi_sensor_demo",
+  "schema_version": "v1",
+  "name": "متعدد المستشعرات - دمج بيانات من ثلاثة مستشعرات",
+  "description": "سيناريو يوضح دمج البيانات من مستشعرات رادار وليدار مستقلة",
+  "duration_seconds": 180.0,
+  "timestep_seconds": 0.1,
+  "random_seed": 98765,
+  "coordinate_system": "ENU",
+  "simulated_sensors": [
+    {
+      "sensor_id": "radar_north",
+      "sensor_type": "radar",
+      "simulated_position": {"x": 0, "y": 0, "z": 0},
+      "sampling_interval": 1.0,
+      "measurement_noise": {
+        "data": [[40000, 0, 0], [0, 40000, 0], [0, 0, 10000]]
+      },
+      "availability_schedule": {},
+      "metadata": {"dropout_probability": 0.05}
+    },
+    {
+      "sensor_id": "radar_east",
+      "sensor_type": "radar",
+      "simulated_position": {"x": 50000, "y": 0, "z": 0},
+      "sampling_interval": 1.0,
+      "measurement_noise": {
+        "data": [[22500, 0, 0], [0, 22500, 0], [0, 0, 6400]]
+      },
+      "availability_schedule": {},
+      "metadata": {"dropout_probability": 0.03}
+    },
+    {
+      "sensor_id": "lidar_south",
+      "sensor_type": "lidar",
+      "simulated_position": {"x": 0, "y": -30000, "z": 0},
+      "sampling_interval": 0.2,
+      "measurement_noise": {
+        "data": [[100, 0, 0], [0, 100, 0], [0, 0, 25]]
+      },
+      "availability_schedule": {},
+      "metadata": {"dropout_probability": 0.01}
+    }
+  ],
+  "virtual_objects": [
+    {
+      "object_id": "target_001",
+      "object_type": "target",
+      "initial_position": {"x": 10000, "y": 40000, "z": 8000},
+      "initial_velocity": {"x": 150, "y": -100, "z": 0},
+      "initial_acceleration": {"x": 0, "y": 0, "z": 0},
+      "dimensions": {"x": 12, "y": 12, "z": 6},
+      "appearance": {},
+      "simulation_enabled": true,
+      "metadata": {"motion_model": "constant_velocity"}
+    }
+  ],
+  "environmental_conditions": {
+    "wind_velocity": {"x": 0, "y": 0, "z": 0},
+    "temperature_celsius": 20.0,
+    "pressure_hpa": 1013.25,
+    "humidity_percent": 50.0,
+    "visibility_km": 10.0,
+    "precipitation": "none",
+    "metadata": {}
+  },
+  "visualization_settings": {
+    "show_trails": true,
+    "trail_length": 100,
+    "show_uncertainty_ellipses": true,
+    "show_sensor_fov": true,
+    "show_coordinates": true,
+    "map_center": {"x": 10000, "y": 20000, "z": 0},
+    "map_range_km": 120.0,
+    "background_color": "#1a1a2e",
+    "object_colors": {},
+    "metadata": {}
+  },
+  "metadata": {}
+}

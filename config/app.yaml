@@ -1,0 +1,62 @@
+# NADOS Dv1.0 Application Configuration
+
+application:
+  name: "NADOS Dv1.0"
+  version: "1.0.0"
+  debug: false
+  language: "ar"  # Arabic as default
+  theme: "dark"
+
+database:
+  path: "data/nados.db"
+  echo: false
+  pool_size: 5
+  max_overflow: 10
+
+simulation:
+  default_seed: 42
+  max_duration_seconds: 3600
+  max_objects: 1000
+  max_sensors: 100
+  max_observations_per_run: 100000
+  max_events_per_run: 10000
+  default_timestep: 0.1
+  min_timestep: 0.01
+  max_timestep: 1.0
+
+visualization:
+  enable_2d: true
+  enable_3d: false
+  update_frequency_hz: 30
+  trail_length: 100
+  show_uncertainty: true
+  coordinate_system: "ENU"  # East-North-Up
+
+logging:
+  level: "INFO"
+  directory: "logs"
+  max_bytes: 10485760  # 10 MB
+  backup_count: 5
+  format: "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
+  date_format: "%Y-%m-%d %H:%M:%S"
+
+reports:
+  output_directory: "reports"
+  formats: ["json", "csv"]
+  include_metadata: true
+  compress: false
+
+scenarios:
+  directory: "scenarios"
+  schema_version: "v1"
+  validate_on_load: true
+
+plugins:
+  enabled: []
+  directories: ["plugins"]
+
+safety:
+  enforce_simulation_boundary: true
+  label_all_data_as_simulated: true
+  prohibit_network_access: true
+  validate_imports: true

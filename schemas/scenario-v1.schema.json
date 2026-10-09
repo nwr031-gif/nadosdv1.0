@@ -1,0 +1,177 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nados.example.com/schemas/scenario-v1.schema.json",
+  "title": "NADOS Simulation Scenario",
+  "type": "object",
+  "required": [
+    "scenario_id",
+    "schema_version",
+    "name",
+    "duration_seconds",
+    "timestep_seconds",
+    "random_seed",
+    "coordinate_system",
+    "simulated_sensors",
+    "virtual_objects"
+  ],
+  "properties": {
+    "scenario_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "description": "Unique scenario identifier"
+    },
+    "schema_version": {
+      "type": "string",
+      "enum": ["v1"],
+      "description": "Schema version"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "Human-readable scenario name"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2048,
+      "description": "Scenario description"
+    },
+    "duration_seconds": {
+      "type": "number",
+      "minimum": 0.1,
+      "maximum": 3600,
+      "description": "Simulation duration in seconds"
+    },
+    "timestep_seconds": {
+      "type": "number",
+      "minimum": 0.01,
+      "maximum": 1.0,
+      "description": "Simulation timestep in seconds"
+    },
+    "random_seed": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2147483647,
+      "description": "Random seed for reproducibility"
+    },
+    "coordinate_system": {
+      "type": "string",
+      "enum": ["ENU", "ECEF", "LLA"],
+      "description": "Coordinate system"
+    },
+    "simulated_sensors": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/sensor_definition"},
+      "maxItems": 100
+    },
+    "virtual_objects": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/virtual_object"},
+      "maxItems": 1000
+    },
+    "environmental_conditions": {"$ref": "#/$defs/environmental_conditions"},
+    "visualization_settings": {"$ref": "#/$defs/visualization_settings"},
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "vector3d": {
+      "type": "object",
+      "required": ["x", "y", "z"],
+      "properties": {
+        "x": {"type": "number"},
+        "y": {"type": "number"},
+        "z": {"type": "number"}
+      }
+    },
+    "matrix3x3": {
+      "type": "object",
+      "required": ["data"],
+      "properties": {
+        "data": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {"type": "number"}
+          }
+        }
+      }
+    },
+    "sensor_definition": {
+      "type": "object",
+      "required": [
+        "sensor_id",
+        "sensor_type",
+        "simulated_position",
+        "sampling_interval",
+        "measurement_noise"
+      ],
+      "properties": {
+        "sensor_id": {"type": "string", "minLength": 1, "pattern": "^[a-zA-Z0-9_-]+$"},
+        "sensor_type": {"type": "string", "enum": ["radar", "lidar", "optical", "irst", "acoustic", "generic"]},
+        "simulated_position": {"$ref": "#/$defs/vector3d"},
+        "sampling_interval": {"type": "number", "minimum": 0.01, "maximum": 60.0},
+        "measurement_noise": {"$ref": "#/$defs/matrix3x3"},
+        "availability_schedule": {"type": "object"},
+        "metadata": {"type": "object"}
+      }
+    },
+    "virtual_object": {
+      "type": "object",
+      "required": [
+        "object_id",
+        "object_type",
+        "initial_position",
+        "initial_velocity",
+        "initial_acceleration",
+        "dimensions",
+        "simulation_enabled"
+      ],
+      "properties": {
+        "object_id": {"type": "string", "minLength": 1, "pattern": "^[a-zA-Z0-9_-]+$"},
+        "object_type": {"type": "string", "enum": ["generic", "vehicle", "projectile", "target", "decoy", "unknown"]},
+        "initial_position": {"$ref": "#/$defs/vector3d"},
+        "initial_velocity": {"$ref": "#/$defs/vector3d"},
+        "initial_acceleration": {"$ref": "#/$defs/vector3d"},
+        "dimensions": {"$ref": "#/$defs/vector3d"},
+        "appearance": {"type": "object"},
+        "simulation_enabled": {"type": "boolean"},
+        "metadata": {"type": "object"}
+      }
+    },
+    "environmental_conditions": {
+      "type": "object",
+      "properties": {
+        "wind_velocity": {"$ref": "#/$defs/vector3d"},
+        "temperature_celsius": {"type": "number"},
+        "pressure_hpa": {"type": "number", "minimum": 0},
+        "humidity_percent": {"type": "number", "minimum": 0, "maximum": 100},
+        "visibility_km": {"type": "number", "minimum": 0},
+        "precipitation": {"type": "string", "enum": ["none", "light", "moderate", "heavy"]},
+        "metadata": {"type": "object"}
+      }
+    },
+    "visualization_settings": {
+      "type": "object",
+      "properties": {
+        "show_trails": {"type": "boolean"},
+        "trail_length": {"type": "integer", "minimum": 0, "maximum": 10000},
+        "show_uncertainty_ellipses": {"type": "boolean"},
+        "show_sensor_fov": {"type": "boolean"},
+        "show_coordinates": {"type": "boolean"},
+        "map_center": {"$ref": "#/$defs/vector3d"},
+        "map_range_km": {"type": "number", "minimum": 1, "maximum": 10000},
+        "background_color": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"},
+        "object_colors": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"}},
+        "metadata": {"type": "object"}
+      }
+    }
+  }
+}

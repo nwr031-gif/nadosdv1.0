@@ -1,0 +1,58 @@
+{
+  "scenario_id": "basic_tracking",
+  "schema_version": "v1",
+  "name": "تتبع أساسي - جسم واحد بمستشعر نظيف",
+  "description": "سيناريو توضيحي لتتبع جسم واحد باستخدام مستشعر رادار بقياسات نظيفة",
+  "duration_seconds": 60.0,
+  "timestep_seconds": 0.1,
+  "random_seed": 42,
+  "coordinate_system": "ENU",
+  "simulated_sensors": [
+    {
+      "sensor_id": "radar_001",
+      "sensor_type": "radar",
+      "simulated_position": {"x": 0, "y": 0, "z": 0},
+      "sampling_interval": 1.0,
+      "measurement_noise": {
+        "data": [[10000, 0, 0], [0, 10000, 0], [0, 0, 2500]]
+      },
+      "availability_schedule": {},
+      "metadata": {"dropout_probability": 0.0}
+    }
+  ],
+  "virtual_objects": [
+    {
+      "object_id": "target_001",
+      "object_type": "target",
+      "initial_position": {"x": 0, "y": 50000, "z": 10000},
+      "initial_velocity": {"x": 250, "y": 0, "z": 0},
+      "initial_acceleration": {"x": 0, "y": 0, "z": 0},
+      "dimensions": {"x": 10, "y": 10, "z": 5},
+      "appearance": {},
+      "simulation_enabled": true,
+      "metadata": {"motion_model": "constant_velocity"}
+    }
+  ],
+  "environmental_conditions": {
+    "wind_velocity": {"x": 0, "y": 0, "z": 0},
+    "temperature_celsius": 20.0,
+    "pressure_hpa": 1013.25,
+    "humidity_percent": 50.0,
+    "visibility_km": 10.0,
+    "precipitation": "none",
+    "metadata": {}
+  },
+  "visualization_settings": {
+    "show_trails": true,
+    "trail_length": 100,
+    "show_uncertainty_ellipses": true,
+    "show_sensor_fov": true,
+    "show_coordinates": true,
+    "map_center": {"x": 0, "y": 50000, "z": 0},
+    "map_range_km": 100.0,
+    "background_color": "#1a1a2e",
+    "object_colors": {},
+    "metadata": {}
+  },
+  "metadata": {}
+}

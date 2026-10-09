@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # Backend API
+  backend:
+    build:
+      context: ./web/backend
+      dockerfile: Dockerfile
+    container_name: nados-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+      - ./scenarios:/app/scenarios
+    environment:
+      - NADOS_DB_PATH=/app/data/nados.db
+      - NADOS_LOG_LEVEL=INFO
+      - NADOS_LOG_DIR=/app/logs
+      - NADOS_DEBUG=false
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend (served by Nginx)
+  frontend:
+    build:
+      context: ./web/frontend
+      dockerfile: Dockerfile
+    container_name: nados-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  nados_data:
+  nados_logs:
+  nados_reports:

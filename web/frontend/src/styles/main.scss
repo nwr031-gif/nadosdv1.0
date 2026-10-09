@@ -1,0 +1,453 @@
+// NADOS Dv1.0 Web Frontend Styles
+// Color palette
+$primary-color: #0f3460;
+$secondary-color: #16213e;
+$accent-color: #e94560;
+$success-color: #00ff00;
+$warning-color: #ffaa00;
+$error-color: #ff0000;
+$info-color: #00ffff;
+$background-color: #1a1a2e;
+$surface-color: #16213e;
+$border-color: #0f3460;
+$text-primary: #eaeaea;
+$text-secondary: #aaaaaa;
+$font-family: 'Noto Sans Arabic', sans-serif;
+
+// Global styles
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: $font-family;
+  background-color: $background-color;
+  color: $text-primary;
+  direction: rtl;
+  min-height: 100vh;
+}
+
+#app {
+  width: 100%;
+  min-height: 100vh;
+}
+
+// Scrollbar styling
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: $background-color;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $border-color;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: $accent-color;
+}
+
+// Element Plus overrides
+.el-container {
+  height: 100vh;
+}
+
+.el-header {
+  background-color: $primary-color;
+  border-bottom: 2px solid $accent-color;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.el-aside {
+  background-color: $secondary-color;
+  border-right: 1px solid $border-color;
+  overflow-y: auto;
+}
+
+.el-main {
+  background-color: $background-color;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.el-footer {
+  background-color: $primary-color;
+  border-top: 1px solid $border-color;
+  padding: 10px 20px;
+  color: $text-secondary;
+  font-size: 12px;
+}
+
+.el-menu {
+  border-right: none;
+  background-color: transparent;
+}
+
+.el-menu-item {
+  color: $text-primary !important;
+  transition: all 0.2s;
+}
+
+.el-menu-item:hover {
+  background-color: $primary-color !important;
+  color: $accent-color !important;
+}
+
+.el-menu-item.is-active {
+  background-color: $accent-color !important;
+  color: white !important;
+  border-right: 3px solid $accent-color;
+}
+
+.el-menu-item-group > .el-menu-item {
+  padding-right: 40px;
+}
+
+.el-card {
+  background-color: $surface-color;
+  border: 1px solid $border-color;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.el-card__header {
+  border-bottom: 1px solid $border-color;
+  color: $text-primary;
+}
+
+.el-table {
+  background-color: $surface-color;
+  color: $text-primary;
+}
+
+.el-table__header {
+  background-color: $primary-color;
+  color: $text-primary;
+}
+
+.el-table th, .el-table td {
+  border-bottom: 1px solid $border-color;
+}
+
+.el-table__row:hover > td {
+  background-color: rgba(233, 69, 96, 0.1);
+}
+
+.el-button {
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.el-button--primary {
+  background-color: $accent-color;
+  border-color: $accent-color;
+}
+
+.el-button--primary:hover {
+  background-color: #d63a55;
+  border-color: #d63a55;
+}
+
+.el-button--success {
+  background-color: $success-color;
+  border-color: $success-color;
+  color: $background-color;
+}
+
+.el-button--warning {
+  background-color: $warning-color;
+  border-color: $warning-color;
+  color: $background-color;
+}
+
+.el-button--danger {
+  background-color: $error-color;
+  border-color: $error-color;
+}
+
+.el-input__inner {
+  background-color: $background-color;
+  border-color: $border-color;
+  color: $text-primary;
+}
+
+.el-input__inner:focus {
+  border-color: $accent-color;
+  box-shadow: 0 0 0 2px rgba(233, 69, 96, 0.2);
+}
+
+.el-select .el-input__inner {
+  cursor: pointer;
+}
+
+.el-dropdown-menu {
+  background-color: $surface-color;
+  border: 1px solid $border-color;
+}
+
+.el-dropdown-menu__item {
+  color: $text-primary;
+}
+
+.el-dropdown-menu__item:hover {
+  background-color: $primary-color;
+  color: $accent-color;
+}
+
+.el-dialog {
+  background-color: $surface-color;
+  border-radius: 8px;
+}
+
+.el-dialog__header {
+  border-bottom: 1px solid $border-color;
+}
+
+.el-dialog__title {
+  color: $text-primary;
+}
+
+.el-form-item__label {
+  color: $text-primary;
+}
+
+.el-form-item__error {
+  color: $error-color;
+}
+
+.el-tag {
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.el-tag--success {
+  background-color: rgba(0, 255, 0, 0.1);
+  border-color: $success-color;
+  color: $success-color;
+}
+
+.el-tag--warning {
+  background-color: rgba(255, 170, 0, 0.1);
+  border-color: $warning-color;
+  color: $warning-color;
+}
+
+.el-tag--danger {
+  background-color: rgba(255, 0, 0, 0.1);
+  border-color: $error-color;
+  color: $error-color;
+}
+
+.el-tag--info {
+  background-color: rgba(0, 255, 255, 0.1);
+  border-color: $info-color;
+  color: $info-color;
+}
+
+.el-progress-bar__inner {
+  background-color: $accent-color;
+}
+
+.el-progress-circle {
+  color: $accent-color;
+}
+
+.el-tabs__nav {
+  border-bottom: 2px solid $border-color;
+}
+
+.el-tabs__item {
+  color: $text-secondary;
+  font-weight: 500;
+}
+
+.el-tabs__item.is-active {
+  color: $accent-color;
+}
+
+.el-tabs__active-bar {
+  background-color: $accent-color;
+  height: 3px;
+}
+
+.el-tooltip__popper {
+  background-color: $surface-color;
+  border: 1px solid $border-color;
+}
+
+.el-tooltip__arrow {
+  border-top-color: $surface-color !important;
+}
+
+// Custom components
+.nados-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: $accent-color;
+  letter-spacing: 1px;
+}
+
+.nados-subtitle {
+  font-size: 14px;
+  color: $text-secondary;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, $surface-color 0%, $primary-color 100%);
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  padding: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(233, 69, 96, 0.2);
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: $accent-color;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: $text-secondary;
+  margin-top: 8px;
+}
+
+.simulation-label {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(233, 69, 96, 0.9);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 14px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(233, 69, 96, 0.3);
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-indicator::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-running {
+  background: rgba(233, 69, 96, 0.2);
+  color: $accent-color;
+}
+
+.status-running::before {
+  background: $accent-color;
+  animation: pulse 1.5s infinite;
+}
+
+.status-paused {
+  background: rgba(255, 170, 0, 0.2);
+  color: $warning-color;
+}
+
+.status-paused::before {
+  background: $warning-color;
+}
+
+.status-idle {
+  background: rgba(0, 255, 0, 0.2);
+  color: $success-color;
+}
+
+.status-idle::before {
+  background: $success-color;
+}
+
+.status-stopped {
+  background: rgba(255, 0, 0, 0.2);
+  color: $error-color;
+}
+
+.status-stopped::before {
+  background: $error-color;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+// Map canvas
+#simulation-canvas {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  background: $background-color;
+}
+
+// Charts
+.chart-container {
+  width: 100%;
+  height: 300px;
+  background: $surface-color;
+  border-radius: 8px;
+  border: 1px solid $border-color;
+  padding: 16px;
+}
+
+// Responsive
+@media (max-width: 1200px) {
+  .el-aside {
+    width: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .el-aside {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 1000;
+    width: 280px;
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+  
+  .el-aside.is-open {
+    transform: translateX(0);
+  }
+  
+  .el-header {
+    padding: 0 16px;
+  }
+  
+  .el-main {
+    padding: 16px;
+  }
+  
+  .stat-value {
+    font-size: 24px;
+  }
+}

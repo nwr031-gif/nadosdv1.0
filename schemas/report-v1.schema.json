@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nados.example.com/schemas/report-v1.schema.json",
+  "title": "NADOS Simulation Report",
+  "type": "object",
+  "required": [
+    "report_metadata",
+    "simulation_info",
+    "execution_status",
+    "observation_statistics",
+    "tracking_summary"
+  ],
+  "properties": {
+    "report_metadata": {
+      "type": "object",
+      "required": ["generated_at", "generator_version", "report_format_version"],
+      "properties": {
+        "generated_at": {"type": "string", "format": "date-time"},
+        "generator_version": {"type": "string"},
+        "report_format_version": {"type": "string"}
+      }
+    },
+    "simulation_info": {
+      "type": "object",
+      "required": ["application_version", "scenario_name", "scenario_schema_version", "random_seed"],
+      "properties": {
+        "application_version": {"type": "string"},
+        "scenario_name": {"type": "string"},
+        "scenario_schema_version": {"type": "string"},
+        "configuration_hash": {"type": "string"},
+        "random_seed": {"type": "integer", "minimum": 0},
+        "simulation_duration_seconds": {"type": "number", "minimum": 0}
+      }
+    },
+    "execution_status": {
+      "type": "object",
+      "required": ["status", "started_at"],
+      "properties": {
+        "status": {"type": "string", "enum": ["pending", "running", "paused", "completed", "failed", "cancelled"]},
+        "started_at": {"type": "string", "format": "date-time"},
+        "completed_at": {"type": ["string", "null"], "format": "date-time"},
+        "duration_seconds": {"type": ["number", "null"], "minimum": 0}
+      }
+    },
+    "observation_statistics": {
+      "type": "object",
+      "required": ["total_generated", "valid_count", "rejected_count", "rejection_rate", "by_sensor"],
+      "properties": {
+        "total_generated": {"type": "integer", "minimum": 0},
+        "valid_count": {"type": "integer", "minimum": 0},
+        "rejected_count": {"type": "integer", "minimum": 0},
+        "rejection_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "by_sensor": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "total": {"type": "integer"},
+              "valid": {"type": "integer"},
+              "missing": {"type": "integer"},
+              "invalid": {"type": "integer"}
+            }
+          }
+        }
+      }
+    },
+    "tracking_summary": {
+      "type": "object",
+      "required": ["total_tracks", "active_tracks", "lost_tracks", "average_observations_per_track"],
+      "properties": {
+        "total_tracks": {"type": "integer", "minimum": 0},
+        "active_tracks": {"type": "integer", "minimum": 0},
+        "lost_tracks": {"type": "integer", "minimum": 0},
+        "average_observations_per_track": {"type": "number", "minimum": 0}
+      }
+    },
+    "processing_statistics": {"type": "object"},
+    "errors_and_warnings": {
+      "type": "object",
+      "properties": {
+        "error_count": {"type": "integer", "minimum": 0},
+        "warning_count": {"type": "integer", "minimum": 0},
+        "critical_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "known_limitations": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  }
+}

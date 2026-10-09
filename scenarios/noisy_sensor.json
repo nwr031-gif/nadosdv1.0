@@ -1,0 +1,58 @@
+{
+  "scenario_id": "noisy_sensor",
+  "schema_version": "v1",
+  "name": "مستشعر ضوضائي - قياسات مع ضوضاء",
+  "description": "سيناريو يوضح الفرق بين القياسات الخام والتقديرات المفلترة مع مستشعر ضوضائي",
+  "duration_seconds": 120.0,
+  "timestep_seconds": 0.1,
+  "random_seed": 12345,
+  "coordinate_system": "ENU",
+  "simulated_sensors": [
+    {
+      "sensor_id": "radar_noisy",
+      "sensor_type": "radar",
+      "simulated_position": {"x": 0, "y": 0, "z": 0},
+      "sampling_interval": 0.5,
+      "measurement_noise": {
+        "data": [[250000, 0, 0], [0, 250000, 0], [0, 0, 40000]]
+      },
+      "availability_schedule": {},
+      "metadata": {"dropout_probability": 0.1}
+    }
+  ],
+  "virtual_objects": [
+    {
+      "object_id": "target_001",
+      "object_type": "target",
+      "initial_position": {"x": 0, "y": 30000, "z": 5000},
+      "initial_velocity": {"x": 200, "y": 50, "z": 0},
+      "initial_acceleration": {"x": 0, "y": 0, "z": 0},
+      "dimensions": {"x": 8, "y": 8, "z": 4},
+      "appearance": {},
+      "simulation_enabled": true,
+      "metadata": {"motion_model": "constant_velocity"}
+    }
+  ],
+  "environmental_conditions": {
+    "wind_velocity": {"x": 5, "y": 2, "z": 0},
+    "temperature_celsius": 20.0,
+    "pressure_hpa": 1013.25,
+    "humidity_percent": 50.0,
+    "visibility_km": 10.0,
+    "precipitation": "none",
+    "metadata": {}
+  },
+  "visualization_settings": {
+    "show_trails": true,
+    "trail_length": 100,
+    "show_uncertainty_ellipses": true,
+    "show_sensor_fov": true,
+    "show_coordinates": true,
+    "map_center": {"x": 0, "y": 30000, "z": 0},
+    "map_range_km": 80.0,
+    "background_color": "#1a1a2e",
+    "object_colors": {},
+    "metadata": {}
+  },
+  "metadata": {}
+}
